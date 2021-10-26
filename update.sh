@@ -26,7 +26,7 @@ echo -e "\e[31mUpgrade\e[0m"
 					echo -e "\e[31m########################################################\e[0m"	
 
 		
-echo -e "\e[31mUpdate\e[0m"
+echo -e "\e[31mFlatpak Update\e[0m"
 	echo
 		sudo flatpak update -y
 					echo -e "\e[31m########################################################\e[0m"	

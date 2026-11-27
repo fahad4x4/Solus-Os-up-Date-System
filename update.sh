@@ -1,34 +1,84 @@
 #!/bin/bash
 # A sample Bash script, by Fahad ALGhathbar
+# Routine eopkg + Flatpak maintenance for Solus.
 
-echo "Rebuild-db"
-sudo eopkg rebuild-db -y 
-echo "########################################################"
+set -euo pipefail
 
-echo "Check"
-sudo eopkg check -y
-echo "########################################################"
+line="########################################################"
+warnings=0
 
-echo "Update-repo"
-sudo eopkg update-repo -y
-echo "########################################################"
+# Run commands as root: directly when already root, otherwise through sudo.
+if [[ $EUID -eq 0 ]]; then
+  SUDO=()
+else
+  if ! command -v sudo > /dev/null 2>&1; then
+    echo "Error: run this script as root or install sudo." >&2
+    exit 1
+  fi
+  echo "This script needs root privileges; asking for your sudo password once."
+  if ! sudo -v; then
+    echo "Error: could not get sudo privileges." >&2
+    exit 1
+  fi
+  SUDO=(sudo)
+fi
 
-echo "Upgrade"
-sudo eopkg upgrade -y
-echo "########################################################"
+if ! command -v eopkg > /dev/null 2>&1; then
+  echo "Error: eopkg not found. This script is for Solus." >&2
+  exit 1
+fi
 
-echo "Flatpak Update"
-sudo flatpak update -y
-echo "########################################################"
+# step "Title" command...  -> stops the script if the command fails
+step() {
+  local title=$1
+  shift
+  echo "$title"
+  if "${SUDO[@]}" "$@"; then
+    echo "OK: $title"
+  else
+    local rc=$?
+    echo "Error: '$title' failed (exit code $rc): $*" >&2
+    echo "Stopping. Fix the problem above and run the script again." >&2
+    exit "$rc"
+  fi
+  echo "$line"
+}
 
-echo "Remove"
-sudo eopkg rmo -y 
-echo "########################################################"
+# optional_step "Title" command...  -> warns and continues if the command fails
+optional_step() {
+  local title=$1
+  shift
+  echo "$title"
+  if "${SUDO[@]}" "$@"; then
+    echo "OK: $title"
+  else
+    local rc=$?
+    echo "Warning: '$title' failed (exit code $rc): $*" >&2
+    warnings=$((warnings + 1))
+  fi
+  echo "$line"
+}
 
-echo "Clean"
-sudo eopkg clean -y 
-echo "########################################################"
+# Clear stale locks first so a lock left by an interrupted run cannot block the steps below.
+step "Clean" eopkg clean -y
+# Finish configuring any packages left half-installed by an interrupted run.
+step "Configure-pending" eopkg configure-pending -y
+step "Rebuild-db" eopkg rebuild-db -y
+# A failed check (e.g. an edited config file) should not stop updates; report it instead.
+optional_step "Check" eopkg check -y
+step "Update-repo" eopkg update-repo -y
+step "Upgrade" eopkg upgrade -y
+step "Remove" eopkg rmo -y
 
-echo "cp"
-sudo eopkg cp -y
-echo "########################################################"
+if command -v flatpak > /dev/null 2>&1; then
+  optional_step "Flatpak Update" flatpak update -y
+else
+  echo "Flatpak not installed; skipping Flatpak Update."
+  echo "$line"
+fi
+
+if (( warnings > 0 )); then
+  echo "Finished with $warnings warning(s); see the messages above." >&2
+  exit 2
+fi
+echo "All steps completed successfully."

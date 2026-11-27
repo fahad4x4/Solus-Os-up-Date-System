@@ -15,27 +15,27 @@
 
 ### Overview
 
-`update.sh` runs a fixed sequence of `eopkg` (the Solus package manager) and Flatpak commands to check, update, and tidy a Solus system. Each command is run through `sudo` and answered automatically with `-y`, and a section header is printed before each step.
+`update.sh` runs a fixed sequence of `eopkg` (the Solus package manager) and Flatpak commands to check, update, and tidy a Solus system. It asks for your `sudo` password once at the start (or runs the commands directly when started as root), answers each command automatically with `-y`, and prints a section header and an OK or error message for each step.
 
 ### What it does
 
-1. **Rebuild-db:** `sudo eopkg rebuild-db -y` rebuilds the eopkg package databases.
-2. **Check:** `sudo eopkg check -y` verifies the installed packages.
-3. **Update-repo:** `sudo eopkg update-repo -y` refreshes the repository index.
-4. **Upgrade:** `sudo eopkg upgrade -y` upgrades installed packages.
-5. **Flatpak Update:** `sudo flatpak update -y` updates installed Flatpak apps.
-6. **Remove:** `sudo eopkg rmo -y` (remove-orphans) removes orphaned packages that are no longer needed.
-7. **Clean:** `sudo eopkg clean -y` clears stale eopkg locks.
-8. **cp:** `sudo eopkg cp -y` (configure-pending) configures any packages still pending configuration.
+1. **Clean:** `eopkg clean -y` clears stale eopkg locks left by an interrupted run, so they cannot block the steps below.
+2. **Configure-pending:** `eopkg configure-pending -y` finishes configuring any packages left half-installed by an interrupted run.
+3. **Rebuild-db:** `eopkg rebuild-db -y` rebuilds the eopkg package databases.
+4. **Check:** `eopkg check -y` verifies the installed packages.
+5. **Update-repo:** `eopkg update-repo -y` refreshes the repository index.
+6. **Upgrade:** `eopkg upgrade -y` upgrades installed packages.
+7. **Remove:** `eopkg rmo -y` (remove-orphans) removes orphaned packages that are no longer needed.
+8. **Flatpak Update:** `flatpak update -y` updates installed Flatpak apps (skipped if Flatpak is not installed).
 
-> **Note:** The script has no error handling: every step runs even if an earlier one fails. The Flatpak step runs unconditionally, so on a system without Flatpak it prints an error and the script moves on.
+> **Error handling:** If an `eopkg` step fails, the script prints which step failed and stops with that step's exit code. The Check and Flatpak steps only print a warning and let the script continue; if any warning occurred, the script ends with exit code 2. It exits with 0 when every step succeeds.
 
 ### Requirements
 
 - Solus
 - Bash
 - A user account with `sudo` privileges (you will be prompted for your password)
-- Flatpak (for the Flatpak update step)
+- Flatpak (optional; the Flatpak step is skipped without it)
 
 ### Installation
 
@@ -47,7 +47,7 @@ chmod +x update.sh
 
 ### Usage
 
-Run it as your normal user; the script calls `sudo` for each command itself:
+Run it as your normal user; the script asks for your `sudo` password once and uses `sudo` for each command itself (running it as root also works):
 
 ```bash
 ./update.sh
@@ -79,27 +79,27 @@ This repository does not include a license file.
 
 ### نظرة عامة
 
-ينفّذ السكربت `update.sh` تسلسلًا ثابتًا من أوامر `eopkg` (مدير الحزم في نظام Solus) وأوامر Flatpak لفحص النظام وتحديثه وتنظيفه. يُشغَّل كل أمر عبر `sudo` مع الخيار `-y` للموافقة التلقائية، ويُطبع عنوان قبل كل خطوة.
+ينفّذ السكربت `update.sh` تسلسلًا ثابتًا من أوامر `eopkg` (مدير الحزم في نظام Solus) وأوامر Flatpak لفحص النظام وتحديثه وتنظيفه. يطلب كلمة مرور `sudo` مرة واحدة في البداية (أو يشغّل الأوامر مباشرة إذا بدأته بصلاحيات root)، ويُشغّل كل أمر مع الخيار `-y` للموافقة التلقائية، ويطبع عنوانًا ورسالة نجاح أو خطأ لكل خطوة.
 
 ### ماذا يفعل
 
-1. **إعادة بناء قاعدة البيانات:** `sudo eopkg rebuild-db -y` يعيد بناء قواعد بيانات الحزم.
-2. **الفحص:** `sudo eopkg check -y` يتحقق من سلامة الحزم المثبتة.
-3. **تحديث المستودع:** `sudo eopkg update-repo -y` يحدّث فهرس المستودع.
-4. **الترقية:** `sudo eopkg upgrade -y` يرقّي الحزم المثبتة.
-5. **تحديث Flatpak:** `sudo flatpak update -y` يحدّث تطبيقات Flatpak المثبتة.
-6. **الإزالة:** `sudo eopkg rmo -y` (remove-orphans) يزيل الحزم اليتيمة التي لم تعد مطلوبة.
-7. **التنظيف:** `sudo eopkg clean -y` يزيل أقفال eopkg العالقة.
-8. **cp:** `sudo eopkg cp -y` (configure-pending) يُكمل إعداد الحزم التي ما زالت بانتظار الإعداد.
+1. **التنظيف:** `eopkg clean -y` يزيل أقفال eopkg العالقة من تشغيل سابق انقطع، حتى لا تعطّل الخطوات التالية.
+2. **إكمال الإعداد المعلّق:** `eopkg configure-pending -y` يُكمل إعداد الحزم التي بقيت دون إعداد بسبب تشغيل سابق انقطع.
+3. **إعادة بناء قاعدة البيانات:** `eopkg rebuild-db -y` يعيد بناء قواعد بيانات الحزم.
+4. **الفحص:** `eopkg check -y` يتحقق من سلامة الحزم المثبتة.
+5. **تحديث المستودع:** `eopkg update-repo -y` يحدّث فهرس المستودع.
+6. **الترقية:** `eopkg upgrade -y` يرقّي الحزم المثبتة.
+7. **الإزالة:** `eopkg rmo -y` (remove-orphans) يزيل الحزم اليتيمة التي لم تعد مطلوبة.
+8. **تحديث Flatpak:** `flatpak update -y` يحدّث تطبيقات Flatpak المثبتة (وتُتخطّى هذه الخطوة إذا لم يكن Flatpak مثبتًا).
 
-> **ملاحظة:** لا يحتوي السكربت على معالجة للأخطاء، فكل خطوة تُنفَّذ حتى لو فشلت خطوة سابقة. كما تُنفَّذ خطوة Flatpak دون شرط، لذا إذا لم يكن Flatpak مثبتًا تظهر رسالة خطأ ويتابع السكربت.
+> **معالجة الأخطاء:** إذا فشلت إحدى خطوات `eopkg` يطبع السكربت اسم الخطوة التي فشلت ويتوقف برمز الخروج نفسه. أما خطوتا الفحص وFlatpak فتطبعان تحذيرًا فقط ويتابع السكربت، وإذا ظهر أي تحذير ينتهي السكربت برمز الخروج 2. وينتهي بالرمز 0 عند نجاح كل الخطوات.
 
 ### المتطلبات
 
 - نظام Solus
 - Bash
 - حساب مستخدم يملك صلاحيات `sudo` (ستُطلب منك كلمة المرور)
-- Flatpak (لخطوة تحديث Flatpak)
+- Flatpak (اختياري؛ تُتخطّى خطوة Flatpak إذا لم يكن مثبتًا)
 
 ### التثبيت
 
@@ -111,7 +111,7 @@ chmod +x update.sh
 
 ### الاستخدام
 
-شغّله بمستخدمك العادي، فالسكربت يستدعي `sudo` بنفسه لكل أمر:
+شغّله بمستخدمك العادي، فالسكربت يطلب كلمة مرور `sudo` مرة واحدة ويستدعي `sudo` بنفسه لكل أمر (ويعمل أيضًا إذا شغّلته بصلاحيات root):
 
 ```bash
 ./update.sh

@@ -1,40 +1,136 @@
 # Solus-Os-up-Date-System
 
+**A simple Bash script that runs the routine eopkg and Flatpak maintenance commands on Solus in one go.**
 
+![Shell: Bash](https://img.shields.io/badge/shell-Bash-4EAA25?logo=gnubash&logoColor=white)
+![Platform: Solus](https://img.shields.io/badge/platform-Solus-5294E2?logo=solus&logoColor=white)
 
-هذا السكربت يقوم بتنفيذ مجموعة من الأوامر على نظام Solus OS وهي:
+[English](#english) | [العربية](#arabic)
 
-إعادة بناء قاعدة البيانات: يتم إجراء هذا الأمر باستخدام sudo eopkg rebuild-db -y. يتم استخدام هذا الأمر لإعادة بناء قاعدة البيانات لنظام التثبيت الخاص بـ Solus OS.
+---
 
-التحقق من حزم النظام: يتم إجراء هذا الأمر باستخدام sudo eopkg check -y. يتم استخدام هذا الأمر للتحقق من حزم النظام والتأكد من عدم وجود أي مشاكل فيها.
+<a id="english"></a>
 
-تحديث المستودع: يتم إجراء هذا الأمر باستخدام sudo eopkg update-repo -y. يتم استخدام هذا الأمر لتحديث المستودع الخاص بـ Solus OS.
+## English
 
-الترقية: يتم إجراء هذا الأمر باستخدام sudo eopkg upgrade -y. يتم استخدام هذا الأمر لترقية حزم النظام إلى أحدث إصداراتها.
+### Overview
 
-تحديث Flatpak: يتم إجراء هذا الأمر باستخدام sudo flatpak update -y. يتم استخدام هذا الأمر لتحديث تطبيقات Flatpak إلى أحدث إصداراتها.
+`update.sh` runs a fixed sequence of `eopkg` (the Solus package manager) and Flatpak commands to check, update, and tidy a Solus system. Each command is run through `sudo` and answered automatically with `-y`, and a section header is printed before each step.
 
-الحذف: يتم إجراء هذا الأمر باستخدام sudo eopkg rmo -y. يتم استخدام هذا الأمر لحذف حزم النظام التي لم يعد بحاجة إليها.
+### What it does
 
-التنظيف: يتم إجراء هذا الأمر باستخدام sudo eopkg clean -y. يتم استخدام هذا الأمر لإزالة ملفات الحزم القديمة والمؤقتة من النظام.
+1. **Rebuild-db:** `sudo eopkg rebuild-db -y` rebuilds the eopkg package databases.
+2. **Check:** `sudo eopkg check -y` verifies the installed packages.
+3. **Update-repo:** `sudo eopkg update-repo -y` refreshes the repository index.
+4. **Upgrade:** `sudo eopkg upgrade -y` upgrades installed packages.
+5. **Flatpak Update:** `sudo flatpak update -y` updates installed Flatpak apps.
+6. **Remove:** `sudo eopkg rmo -y` (remove-orphans) removes orphaned packages that are no longer needed.
+7. **Clean:** `sudo eopkg clean -y` clears stale eopkg locks.
+8. **cp:** `sudo eopkg cp -y` (configure-pending) configures any packages still pending configuration.
 
-النسخ: يتم إجراء هذا الأمر باستخدام sudo eopkg cp -y. يتم استخدام هذا الأمر لنسخ حزم النظام من مسار التثبيت إلى مسار آخر في النظام.
+> **Note:** The script has no error handling: every step runs even if an earlier one fails. The Flatpak step runs unconditionally, so on a system without Flatpak it prints an error and the script moves on.
 
+### Requirements
 
-The Bash script is designed to automate several Linux system maintenance tasks on the Solus OS distribution. It consists of several commands that perform system checks, updates, and cleaning operations.
+- Solus
+- Bash
+- A user account with `sudo` privileges (you will be prompted for your password)
+- Flatpak (for the Flatpak update step)
 
-The script begins with "Rebuild-db," which executes the "sudo eopkg rebuild-db -y" command, which rebuilds the package database. This is followed by a "Check" command, which executes the "sudo eopkg check -y" command, which checks the system for errors and suggests potential fixes.
+### Installation
 
-The "Update-repo" command updates the repository by executing the "sudo eopkg update-repo -y" command, which updates the repository database. The "Upgrade" command executes the "sudo eopkg upgrade -y" command, which upgrades all installed packages on the system.
+```bash
+git clone https://github.com/fahad4x4/Solus-Os-up-Date-System.git
+cd Solus-Os-up-Date-System
+chmod +x update.sh
+```
 
-The "Flatpak Update" command executes the "sudo flatpak update -y" command, which updates all installed Flatpak packages. This command was updated to remove the "-q" flag since it is not a valid option in the "flatpak update" command.
+### Usage
 
-The "Remove" command executes the "sudo eopkg rmo -y" command, which removes unused dependencies from the system. The "Clean" command executes the "sudo eopkg clean -y" command, which removes cached packages from the system. Finally, the "cp" command executes the "sudo eopkg cp -y" command, which cleans the cached package of obsolete package versions.
+Run it as your normal user; the script calls `sudo` for each command itself:
 
-In summary, this script automates system maintenance tasks to keep the Solus OS distribution up-to-date and optimize system performance.
-
-_______________________________________________________
-
-to run
-
+```bash
 ./update.sh
+```
+
+### Project structure
+
+```
+Solus-Os-up-Date-System/
+├── update.sh    # The maintenance script
+└── README.md    # This file
+```
+
+### License
+
+This repository does not include a license file.
+
+### Author
+
+**Fahad ALGhathbar**, GitHub: [@fahad4x4](https://github.com/fahad4x4)
+
+---
+
+<a id="arabic"></a>
+
+## العربية
+
+<div dir="rtl">
+
+### نظرة عامة
+
+ينفّذ السكربت `update.sh` تسلسلًا ثابتًا من أوامر `eopkg` (مدير الحزم في نظام Solus) وأوامر Flatpak لفحص النظام وتحديثه وتنظيفه. يُشغَّل كل أمر عبر `sudo` مع الخيار `-y` للموافقة التلقائية، ويُطبع عنوان قبل كل خطوة.
+
+### ماذا يفعل
+
+1. **إعادة بناء قاعدة البيانات:** `sudo eopkg rebuild-db -y` يعيد بناء قواعد بيانات الحزم.
+2. **الفحص:** `sudo eopkg check -y` يتحقق من سلامة الحزم المثبتة.
+3. **تحديث المستودع:** `sudo eopkg update-repo -y` يحدّث فهرس المستودع.
+4. **الترقية:** `sudo eopkg upgrade -y` يرقّي الحزم المثبتة.
+5. **تحديث Flatpak:** `sudo flatpak update -y` يحدّث تطبيقات Flatpak المثبتة.
+6. **الإزالة:** `sudo eopkg rmo -y` (remove-orphans) يزيل الحزم اليتيمة التي لم تعد مطلوبة.
+7. **التنظيف:** `sudo eopkg clean -y` يزيل أقفال eopkg العالقة.
+8. **cp:** `sudo eopkg cp -y` (configure-pending) يُكمل إعداد الحزم التي ما زالت بانتظار الإعداد.
+
+> **ملاحظة:** لا يحتوي السكربت على معالجة للأخطاء، فكل خطوة تُنفَّذ حتى لو فشلت خطوة سابقة. كما تُنفَّذ خطوة Flatpak دون شرط، لذا إذا لم يكن Flatpak مثبتًا تظهر رسالة خطأ ويتابع السكربت.
+
+### المتطلبات
+
+- نظام Solus
+- Bash
+- حساب مستخدم يملك صلاحيات `sudo` (ستُطلب منك كلمة المرور)
+- Flatpak (لخطوة تحديث Flatpak)
+
+### التثبيت
+
+```bash
+git clone https://github.com/fahad4x4/Solus-Os-up-Date-System.git
+cd Solus-Os-up-Date-System
+chmod +x update.sh
+```
+
+### الاستخدام
+
+شغّله بمستخدمك العادي، فالسكربت يستدعي `sudo` بنفسه لكل أمر:
+
+```bash
+./update.sh
+```
+
+### هيكل المشروع
+
+```
+Solus-Os-up-Date-System/
+├── update.sh    # سكربت الصيانة
+└── README.md    # هذا الملف
+```
+
+### الرخصة
+
+لا يتضمن هذا المستودع ملف رخصة.
+
+### المؤلف
+
+**فهد الغثبر (Fahad ALGhathbar)**، على GitHub: [@fahad4x4](https://github.com/fahad4x4)
+
+</div>

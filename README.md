@@ -63,7 +63,7 @@ Solus-Os-up-Date-System/
 
 ### License
 
-This repository does not include a license file.
+Released under the [MIT License](LICENSE). Copyright © 2026 Fahad ALGhathbar (فهد الغثبر).
 
 ### Author
 
@@ -127,7 +127,7 @@ Solus-Os-up-Date-System/
 
 ### الرخصة
 
-لا يتضمن هذا المستودع ملف رخصة.
+المشروع منشور برخصة [MIT](LICENSE). حقوق النشر © 2026 فهد الغثبر (Fahad ALGhathbar).
 
 ### المؤلف
 
